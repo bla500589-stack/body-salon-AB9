@@ -13,18 +13,6 @@
         button,input,select{font:inherit}
         button{cursor:pointer}
         .app{direction:rtl;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between}
-        
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #142238; color: white; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 10000; text-align: center;
-            animation: fadeOut 0.8s ease-in-out 2.2s forwards;
-        }
-        .splash-screen h1 { font-size: 42px; color: #e8bb76; margin-bottom: 10px; }
-        .splash-screen p { font-size: 20px; color: #bbc5d5; }
-        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
-
         header{background:#142238;color:white;padding:20px 6%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
         header h2{margin:0;color:#e8bb76;font-size:35px;font-weight:bold;}
         header small{color:#bbc5d5}
@@ -41,13 +29,14 @@
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #17663a; color: white; padding: 15px 30px; border-radius: 8px; font-size: 20px; font-weight: bold; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: slideDown 0.5s ease-out; }
         @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
         .toast.nabi { background: #d4af37; color: #142238; }
-        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px}
         .card,.panel{background:white;border:1px solid #e2e6ed;border-radius:12px;padding:17px;margin-bottom:13px}
         .card h3{margin:5px 0 10px}
         .price{font-size:22px;font-weight:bold;color:#a77835}
         button.primary{border:0;background:#e8bb76;color:#142238;font-weight:bold;border-radius:8px;padding:12px 16px}
         button.secondary{border:0;background:#142238;color:white;border-radius:8px;padding:10px 14px}
-        button.danger{border:0;background:#fee9e9;color:#9b2525;border-radius:7px;padding:8px}
+        button.danger{border:0;background:#fee9e9;color:#9b2525;border-radius:7px;padding:8px 12px;font-weight:bold}
+        button.success-btn{border:0;background:#17663a;color:white;border-radius:7px;padding:6px 12px}
         input,select{width:100%;padding:12px;border:1px solid #d9dee8;border-radius:8px;background:white;margin:7px 0 13px}
         label{font-size:13px;font-weight:bold}
         h2.section{font-size:22px;margin-top:28px}
@@ -56,26 +45,11 @@
         .warning-box { background: #fff3cd; color: #856404; padding: 13px; border-radius: 9px; border: 1px solid #ffeeba; margin-bottom: 15px; font-weight: bold;}
         .row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
         .stat{background:#fff;border:1px solid #e2e6ed;padding:17px;border-radius:12px}
-        .stat strong{display:block;font-size:25px;margin-top:8px;color:#a77835}
-        
-        /* XO Game */
-        .game-board { display: grid; grid-template-columns: repeat(3, 90px); gap: 8px; justify-content: center; margin-top: 15px;}
-        .square { width: 90px; height: 90px; background: #fff; border: 2px solid #142238; font-size: 40px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #142238; border-radius: 8px;}
-        .square:hover { background: #f0f0f0; }
-
-        /* Memory Game */
-        .memory-board { display: grid; grid-template-columns: repeat(4, 75px); gap: 10px; justify-content: center; margin-top: 15px; }
-        .memory-card { width: 75px; height: 75px; background: #142238; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; user-select: none; }
-        .memory-card.flipped { background: #e8bb76; color: #142238; }
-
-        /* Tasbeeh Counter */
-        .tasbeeh-circle { width: 140px; height: 140px; border-radius: 50%; background: #142238; color: #e8bb76; font-size: 45px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 20px auto; border: 5px solid #e8bb76; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .tasbeeh-circle:active { transform: scale(0.95); }
-
-        footer{text-align:center;padding:25px;background:#142238;color:#bbc5d5;font-size:14px;margin-top:auto;}
-        footer .social-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; font-size: 18px; }
-        footer .social-links a { color: #e8bb76; text-decoration: none; font-weight: bold; }
-        footer .social-links a:hover { text-decoration: underline; }
+        .stat strong{display:block;font-size:24px;margin-top:8px;color:#a77835}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th,td{text-align:right;padding:10px;border-bottom:1px solid #eee;font-size:14px}
+        th{background:#f5f6f9}
+        footer{text-align:center;padding:20px;background:#142238;color:#bbc5d5;font-size:14px;margin-top:auto;}
     </style>
 </head>
 <body>
@@ -95,26 +69,11 @@
         const barbers = ["محمود", "نور", "عمر السيد", "عمر علاء", "مصطفى مشعل"];
         const times = ["10:00 ص", "11:00 ص", "12:00 م", "1:00 م", "2:00 م", "3:00 م", "4:00 م", "5:00 م", "6:00 م"];
 
-        const azkarSabah = [
-          "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.",
-          "اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.",
-          "رضيت بالله رباً، وبالإسلام ديناً، وبمحمد صلى الله عليه وسلم نبياً.",
-          "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم (7 مرات)."
-        ];
-
-        const azkarMasaa = [
-          "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.",
-          "اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.",
-          "أعوذ بكلمات الله التامات من شر ما خلق (3 مرات).",
-          "بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم (3 مرات)."
-        ];
-
-        const initialMemoryIcons = ['✂️', '✂️', '💈', '💈', '👑', '👑', '🔥', '🔥'];
-
         function App() {
-          const [showSplash, setShowSplash] = useState(true);
           const [page, setPage] = useState("home");
           const [bookings, setBookings] = useState(() => { try { return JSON.parse(localStorage.getItem("body_bookings") || "[]"); } catch { return []; } });
+          const [expenses, setExpenses] = useState(() => { try { return JSON.parse(localStorage.getItem("body_expenses") || "[]"); } catch { return []; } });
+          
           const [branch, setBranch] = useState(branches[0]);
           const [barber, setBarber] = useState(barbers[0]);
           const [bookingType, setBookingType] = useState("advance"); 
@@ -125,32 +84,15 @@
           const [message, setMessage] = useState("");
           const [toastMessage, setToastMessage] = useState(null);
           const [audioEnabled, setAudioEnabled] = useState(false);
-          
-          // XO State
-          const [board, setBoard] = useState(Array(9).fill(null));
-          const [isXNext, setIsXNext] = useState(true);
-          const winner = calculateWinner(board);
 
-          // Memory Game State
-          const [cards, setCards] = useState([]);
-          const [flipped, setFlipped] = useState([]);
-          const [matched, setMatched] = useState([]);
-
-          // Quran & Azkar State
-          const [azkarTab, setAzkarTab] = useState("tasbeeh");
-          const [tasbeehPhrase, setTasbeehPhrase] = useState("سبحان الله");
-          const [tasbeehCount, setTasbeehCount] = useState(0);
-
-          // Admin Auth State
+          // Admin State
           const [adminPassword, setAdminPassword] = useState("");
           const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-
-          useEffect(() => {
-            setTimeout(() => setShowSplash(false), 3000);
-            resetMemoryGame();
-          }, []);
+          const [expenseReason, setExpenseReason] = useState("");
+          const [expenseAmount, setExpenseAmount] = useState("");
 
           useEffect(() => { localStorage.setItem("body_bookings", JSON.stringify(bookings)); }, [bookings]);
+          useEffect(() => { localStorage.setItem("body_expenses", JSON.stringify(expenses)); }, [expenses]);
           
           useEffect(() => {
             const interval = setInterval(() => {
@@ -159,27 +101,6 @@
             }, 180000); 
             return () => clearInterval(interval);
           }, []);
-
-          function resetMemoryGame() {
-            const shuffled = [...initialMemoryIcons].sort(() => Math.random() - 0.5);
-            setCards(shuffled);
-            setFlipped([]);
-            setMatched([]);
-          }
-
-          function handleCardClick(index) {
-            if (flipped.length === 2 || flipped.includes(index) || matched.includes(index)) return;
-            const newFlipped = [...flipped, index];
-            setFlipped(newFlipped);
-
-            if (newFlipped.length === 2) {
-              const [first, second] = newFlipped;
-              if (cards[first] === cards[second]) {
-                setMatched(prev => [...prev, first, second]);
-              }
-              setTimeout(() => setFlipped([]), 800);
-            }
-          }
 
           function playSound() {
             if (!audioEnabled) return;
@@ -193,12 +114,12 @@
             let newBooking = {};
             const deposit = service.price / 2; 
             if (bookingType === "advance") {
-              newBooking = { id: Date.now(), name, phone, branch, barber, service: service.name, price: service.price, type: "حجز مسبق", date, time, deposit: deposit, status: "مؤكد (عربون غير مسترد)" };
+              newBooking = { id: Date.now(), name, phone, branch, barber, service: service.name, price: service.price, type: "حجز مسبق", date, time, deposit: deposit, status: "في الانتظار", attended: false };
               setMessage("تم تسجيل الحجز المسبق! برجاء الحضور في الميعاد.");
             } else {
               const currentQueue = bookings.filter(b => b.type === "دور الآن").length;
               const myTurn = 100 + currentQueue;
-              newBooking = { id: Date.now(), name, phone, branch, barber, service: service.name, price: service.price, type: "دور الآن", turnNumber: myTurn, deposit: 0, status: "في الانتظار" };
+              newBooking = { id: Date.now(), name, phone, branch, barber, service: service.name, price: service.price, type: "دور الآن", turnNumber: myTurn, deposit: 0, status: "في الانتظار", attended: false };
               setMessage(`تم تسجيلك في الانتظار! رقم دورك هو: ${myTurn}`);
               setTimeout(() => {
                 setToastMessage({ text: `دورك جه يا ${name}، اتفضل الكرسي رقم 1`, type: "turn" });
@@ -209,36 +130,42 @@
             setBookings(old => [newBooking, ...old]); setName(""); setPhone(""); setPage("bookings");
           }
 
-          function handleTasbeehClick() {
-            const nextCount = tasbeehCount + 1;
-            setTasbeehCount(nextCount);
-            if (nextCount % 10 === 0) {
-              setToastMessage({ text: `ما شاء الله! أتممت ${nextCount} مرات من (${tasbeehPhrase}) ✨`, type: "nabi" });
-              setTimeout(() => setToastMessage(null), 4000);
-            }
+          function markAsAttended(id) {
+            setBookings(prev => prev.map(b => b.id === id ? { ...b, attended: true, status: "تم الحضور والتحصيل" } : b));
+          }
+
+          function handleAddExpense(e) {
+            e.preventDefault();
+            if (!expenseReason.trim() || !expenseAmount || expenseAmount <= 0) return;
+            const newExpense = {
+              id: Date.now(),
+              reason: expenseReason,
+              amount: parseFloat(expenseAmount),
+              date: new Date().toLocaleDateString("ar-EG")
+            };
+            setExpenses(prev => [newExpense, ...prev]);
+            setExpenseReason("");
+            setExpenseAmount("");
           }
 
           const nav = [
             ["home", "الرئيسية"], 
             ["booking", "حجز جديد"], 
             ["bookings", "الحجوزات"], 
-            ["azkar", "القرآن والأذكار 📖"],
-            ["games", "تسلية 🎮"], 
-            ["admin", "الإدارة 🔒"]
+            ["admin", "الإدارة والمالية 🔒"]
           ];
           
           const totalVisits = bookings.length;
           const visitsText = totalVisits >= 5 ? "مبروك! زيارتك السادسة مجانية بالكامل ✂️🎉" : `فاضلك ${5 - totalVisits} زيارات وتاخد السادسة مجاناً بكل حاجة! 🎁`;
 
+          // الإحصائيات الحسابية
+          const attendedBookings = bookings.filter(b => b.attended);
+          const totalIncome = attendedBookings.reduce((sum, b) => sum + b.price, 0);
+          const totalExpensesAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+          const netProfit = totalIncome - totalExpensesAmount;
+
           return (
             <div className="app">
-              {showSplash && (
-                <div className="splash-screen">
-                  <h1>بودي</h1>
-                  <p>أهلاً بعملاء بودي.. نتشرف بحضوركم!</p>
-                </div>
-              )}
-
               {toastMessage && (<div className={`toast ${toastMessage.type}`}>{toastMessage.text}</div>)}
               
               <header>
@@ -304,12 +231,30 @@
                       <small style={{ color: "#ccc" }}>عدد زياراتك: {totalVisits}</small>
                     </div>
                     <h2 className="section">الحجوزات المسجلة</h2>
-                    {bookings.length === 0 ? (<div className="panel">لا توجد حجوزات حتى الآن.</div>) : (bookings.map(b => (<div className="panel" key={b.id} style={{ borderRight: b.type === 'دور الآن' ? '5px solid #e8bb76' : '5px solid #142238' }}><div className="row"><h3>{b.name} — {b.service}</h3><span className="gold" style={{ fontWeight: "bold" }}>{b.type}</span></div><p>الفرع: {b.branch} | الحلاق: {b.barber}</p>{b.type === "حجز مسبق" ? (<p>الموعد: {b.date} — {b.time} (العربون: {b.deposit} جنيه)</p>) : (<p style={{ fontSize: 20, color: '#d35400' }}>رقم الدور: <b>{b.turnNumber}</b></p>)}<small className="muted">{b.status}</small></div>)))}
+                    {bookings.length === 0 ? (<div className="panel">لا توجد حجوزات حتى الآن.</div>) : (bookings.map(b => (
+                      <div className="panel" key={b.id} style={{ borderRight: b.attended ? '5px solid #27ae60' : (b.type === 'دور الآن' ? '5px solid #e8bb76' : '5px solid #142238') }}>
+                        <div className="row">
+                          <h3>{b.name} — {b.service}</h3>
+                          <span className="gold" style={{ fontWeight: "bold" }}>{b.type}</span>
+                        </div>
+                        <p>الفرع: {b.branch} | الحلاق: {b.barber} | السعر: <b>{b.price} جنيه</b></p>
+                        {b.type === "حجز مسبق" ? (<p>الموعد: {b.date} — {b.time} (العربون: {b.deposit} جنيه)</p>) : (<p style={{ fontSize: 18, color: '#d35400' }}>رقم الدور: <b>{b.turnNumber}</b></p>)}
+                        <div className="row" style={{ marginTop: 10 }}>
+                          <small className="muted">الحالة: <b>{b.status}</b></small>
+                          {!b.attended && (
+                            <button className="success-btn" onClick={() => markAsAttended(b.id)}>✓ تسجيل حضور وتحصيل الفلوس</button>
+                          )}
+                        </div>
+                      </div>
+                    )))}
                   </>
                 )}
 
-                {page === "azkar" && (
+                {page === "admin" && (
                   <>
-                    <h2 className="section">القرآن والأذكار 📖</h2>
-                    <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                      <button className={azkarTab === "tasbeeh" ? "primary" : "secondary"} onClick={() => setAzkarTab("tasbeeh")} style={{ flex: 1 }}
+                    <h2 className="section">لوحة الإدارة والحسابات 🔒</h2>
+                    {!isAdminAuthenticated ? (
+                      <div className="panel" style={{ maxWidth: 400, margin: "auto", textAlign: "center" }}>
+                        <h3>تسجيل الدخول للإدارة</h3>
+                        <input type="password" placeholder="أدخل كلمة المرور" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} />
+                        <button className="
