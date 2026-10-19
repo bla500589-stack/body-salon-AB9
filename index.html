@@ -7,27 +7,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>body { margin: 0; padding: 0; }</style>
-</head>
-<body>
-    <div id="root"></div>
-    <script type="text/babel">
-        // --- الكود بتاعك بالكامل هنا ---
-        const { useState, useEffect } = React;
-
-        const services = [
-          { id: 1, name: "شعر ودقن", price: 130 },
-          { id: 2, name: "شعر بس", price: 100 },
-          { id: 3, name: "شعر ودقن واستشوار", price: 200 },
-          { id: 4, name: "شعر ودقن واستشوار + ماسك", price: 300 },
-          { id: 5, name: "عرض العريس", price: 1000 },
-          { id: 6, name: "عرض الروشنة", price: 500 },
-        ];
-        const branches = ["عين شمس", "المرج", "الدقي"];
-        const barbers = ["محمود", "نور", "عمر السيد", "عمر علاء", "مصطفى مشعل"];
-        const times = ["10:00 ص", "11:00 ص", "12:00 م", "1:00 م", "2:00 م", "3:00 م", "4:00 م", "5:00 م", "6:00 م"];
-        
-        const css = `
+    <style>
         *{box-sizing:border-box}
         body{margin:0;font-family:Tahoma,Arial;background:#f3f5f9;color:#172338}
         button,input,select{font:inherit}
@@ -69,13 +49,33 @@
         .game-board { display: grid; grid-template-columns: repeat(3, 100px); gap: 5px; justify-content: center; margin-top: 20px;}
         .square { width: 100px; height: 100px; background: #fff; border: 2px solid #142238; font-size: 50px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #142238;}
         .square:hover { background: #f0f0f0; }
-        `;
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const services = [
+          { id: 1, name: "شعر ودقن", price: 130 },
+          { id: 2, name: "شعر بس", price: 100 },
+          { id: 3, name: "شعر ودقن واستشوار", price: 200 },
+          { id: 4, name: "شعر ودقن واستشوار + ماسك", price: 300 },
+          { id: 5, name: "عرض العريس", price: 1000 },
+          { id: 6, name: "عرض الروشنة", price: 500 },
+        ];
+        const branches = ["عين شمس", "المرج", "الدقي"];
+        const barbers = ["محمود", "نور", "عمر السيد", "عمر علاء", "مصطفى مشعل"];
+        const times = ["10:00 ص", "11:00 ص", "12:00 م", "1:00 م", "2:00 م", "3:00 م", "4:00 م", "5:00 م", "6:00 م"];
 
         function App() {
           const [page, setPage] = useState("home");
-          const [bookings, setBookings] = useState(() => {
-            try { return JSON.parse(localStorage.getItem("body_bookings") || "[]"); } catch { return []; }
-          });
+          const [bookings, setBookings] = useState(() => { try { return JSON.parse(localStorage.getItem("body_bookings") || "[]"); } catch { return []; } });
+          
+          // خزنة (مسحوبات)
+          const [withdrawals, setWithdrawals] = useState(() => { try { return JSON.parse(localStorage.getItem("body_withdrawals") || "[]"); } catch { return []; } });
+          const [withdrawAmount, setWithdrawAmount] = useState("");
+          
           const [branch, setBranch] = useState(branches[0]);
           const [barber, setBarber] = useState(barbers[0]);
           const [bookingType, setBookingType] = useState("advance"); 
@@ -88,10 +88,15 @@
           const [audioEnabled, setAudioEnabled] = useState(false);
           const [board, setBoard] = useState(Array(9).fill(null));
           const [isXNext, setIsXNext] = useState(true);
-          
           const winner = calculateWinner(board);
 
+          // إدارة
+          const [adminPassword, setAdminPassword] = useState("");
+          const [isAdminAuth, setIsAdminAuth] = useState(false);
+
           useEffect(() => { localStorage.setItem("body_bookings", JSON.stringify(bookings)); }, [bookings]);
+          useEffect(() => { localStorage.setItem("body_withdrawals", JSON.stringify(withdrawals)); }, [withdrawals]);
+          
           useEffect(() => {
             const interval = setInterval(() => {
               setToastMessage({ text: "صلي على النبي ﷺ ✨", type: "nabi" });
@@ -108,10 +113,7 @@
 
           function handleBooking(e, service) {
             e.preventDefault();
-            if (!name.trim() || !phone.trim()) {
-              setMessage("من فضلك اكتب اسم العميل ورقم الموبايل.");
-              return;
-            }
+            if (!name.trim() || !phone.trim()) { setMessage("من فضلك اكتب اسم العميل ورقم الموبايل."); return; }
             let newBooking = {};
             const deposit = service.price / 2; 
             if (bookingType === "advance") {
@@ -128,9 +130,32 @@
                 setTimeout(() => setToastMessage(null), 8000);
               }, 10000);
             }
-            setBookings(old => [newBooking, ...old]);
-            setName(""); setPhone(""); setPage("bookings");
+            setBookings(old => [newBooking, ...old]); setName(""); setPhone(""); setPage("bookings");
           }
+
+          const handleAdminLogin = (e) => {
+            e.preventDefault();
+            if (adminPassword === "1") {
+              setIsAdminAuth(true);
+              setMessage("");
+            } else {
+              setMessage("كلمة المرور غير صحيحة!");
+              setAdminPassword("");
+            }
+          };
+
+          const handleWithdraw = (e) => {
+            e.preventDefault();
+            if (!withdrawAmount || isNaN(withdrawAmount)) return;
+            const newWithdrawal = { id: Date.now(), amount: Number(withdrawAmount) };
+            setWithdrawals(old => [newWithdraw, ...old]);
+            setWithdrawAmount("");
+            setMessage("تم تسجيل السحب بنجاح.");
+          };
+
+          const totalIncome = bookings.reduce((sum, b) => sum + b.price, 0);
+          const totalWithdrawn = withdrawals.reduce((sum, w) => sum + w.amount, 0);
+          const safeBalance = totalIncome - totalWithdrawn;
 
           const nav = [["home", "الرئيسية"], ["booking", "حجز جديد"], ["bookings", "الحجوزات"], ["games", "تسلية 🎮"], ["admin", "الإدارة"]];
           const totalVisits = bookings.length;
@@ -138,7 +163,6 @@
 
           return (
             <div className="app">
-              <style>{css}</style>
               {toastMessage && (<div className={`toast ${toastMessage.type}`}>{toastMessage.text}</div>)}
               <header>
                 <div><h2>بودي</h2><small>نظام صالونات الحلاقة الذكي</small></div>
@@ -147,9 +171,7 @@
                   <span>💈 احجز حلاقتك بسهولة</span>
                 </div>
               </header>
-              <nav>
-                {nav.map(([id, title]) => (<button key={id} className={page === id ? "active" : ""} onClick={() => { setPage(id); setMessage(""); }}>{title}</button>))}
-              </nav>
+              <nav>{nav.map(([id, title]) => (<button key={id} className={page === id ? "active" : ""} onClick={() => { setPage(id); setMessage(""); }}>{title}</button>))}</nav>
               <main>
                 {message && (<div className="success">{message}<button onClick={() => setMessage("")} style={{ float: "left", border: 0, background: "transparent" }}>✕</button></div>)}
                 
@@ -163,14 +185,7 @@
                       <button className="primary" onClick={() => setPage("booking")}>احجز موعدك الآن ←</button>
                     </section>
                     <h2 className="section">الخدمات والأسعار</h2>
-                    <div className="grid">
-                      {services.map(s => (
-                        <div className="card" key={s.id}>
-                          <h3>✂ {s.name}</h3><p className="price">{s.price} جنيه</p>
-                          <button className="secondary" onClick={() => setPage("booking")}>اختار الخدمة</button>
-                        </div>
-                      ))}
-                    </div>
+                    <div className="grid">{services.map(s => (<div className="card" key={s.id}><h3>✂ {s.name}</h3><p className="price">{s.price} جنيه</p><button className="secondary" onClick={() => setPage("booking")}>اختار الخدمة</button></div>))}</div>
                   </>
                 )}
 
@@ -179,31 +194,23 @@
                     <h2 className="section">حجز موعد جديد</h2>
                     <div className="panel">
                       <label>اختر الخدمة:</label>
-                      <select id="serviceSelector" style={{ marginBottom: 20 }}>
-                        {services.map(s => <option key={s.id} value={s.id}>{s.name} — {s.price} جنيه</option>)}
-                      </select>
+                      <select id="serviceSelector" style={{ marginBottom: 20 }}>{services.map(s => <option key={s.id} value={s.id}>{s.name} — {s.price} جنيه</option>)}</select>
                       <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                         <button type="button" className={bookingType === "advance" ? "primary" : "secondary"} onClick={() => setBookingType("advance")} style={{ flex: 1 }}>حجز مسبق (ميعاد محدد)</button>
                         <button type="button" className={bookingType === "now" ? "primary" : "secondary"} onClick={() => setBookingType("now")} style={{ flex: 1 }}>حجز فوري (دور الآن)</button>
                       </div>
                       <form onSubmit={(e) => { const selectedId = document.getElementById("serviceSelector").value; const service = services.find(s => s.id === parseInt(selectedId)); handleBooking(e, service); }}>
-                        <label>الفرع</label>
-                        <select value={branch} onChange={e => setBranch(e.target.value)}>{branches.map(b => <option key={b}>{b}</option>)}</select>
-                        <label>الحلاق المفضل</label>
-                        <select value={barber} onChange={e => setBarber(e.target.value)}>{barbers.map(b => <option key={b}>{b}</option>)}</select>
+                        <label>الفرع</label><select value={branch} onChange={e => setBranch(e.target.value)}>{branches.map(b => <option key={b}>{b}</option>)}</select>
+                        <label>الحلاق المفضل</label><select value={barber} onChange={e => setBarber(e.target.value)}>{barbers.map(b => <option key={b}>{b}</option>)}</select>
                         {bookingType === "advance" && (
                           <>
                             <div className="warning-box">⚠️ تنبيه هام: في الحجز المسبق، يتم دفع عربون (50% من قيمة الخدمة). هذا العربون غير مسترد في حالة عدم الحضور في الميعاد المحدد.</div>
-                            <label>تاريخ الحجز</label>
-                            <input type="date" min={new Date().toLocaleDateString("en-CA")} value={date} onChange={e => setDate(e.target.value)} required />
-                            <label>الميعاد</label>
-                            <select value={time} onChange={e => setTime(e.target.value)}>{times.map(t => <option key={t}>{t}</option>)}</select>
+                            <label>تاريخ الحجز</label><input type="date" min={new Date().toLocaleDateString("en-CA")} value={date} onChange={e => setDate(e.target.value)} required />
+                            <label>الميعاد</label><select value={time} onChange={e => setTime(e.target.value)}>{times.map(t => <option key={t}>{t}</option>)}</select>
                           </>
                         )}
-                        <label>اسم العميل</label>
-                        <input value={name} onChange={e => setName(e.target.value)} placeholder="اكتب الاسم" required />
-                        <label>رقم الموبايل</label>
-                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="01xxxxxxxxx" required />
+                        <label>اسم العميل</label><input value={name} onChange={e => setName(e.target.value)} placeholder="اكتب الاسم" required />
+                        <label>رقم الموبايل</label><input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="01xxxxxxxxx" required />
                         <button className="primary" type="submit" style={{ marginTop: 20, width: "100%" }}>{bookingType === "advance" ? "تأكيد الحجز ودفع العربون" : "خذ رقم دورك الآن"}</button>
                       </form>
                     </div>
@@ -218,16 +225,7 @@
                       <small style={{ color: "#ccc" }}>عدد زياراتك: {totalVisits}</small>
                     </div>
                     <h2 className="section">الحجوزات المسجلة</h2>
-                    {bookings.length === 0 ? (<div className="panel">لا توجد حجوزات حتى الآن.</div>) : (
-                      bookings.map(b => (
-                        <div className="panel" key={b.id} style={{ borderRight: b.type === 'دور الآن' ? '5px solid #e8bb76' : '5px solid #142238' }}>
-                          <div className="row"><h3>{b.name} — {b.service}</h3><span className="gold" style={{ fontWeight: "bold" }}>{b.type}</span></div>
-                          <p>الفرع: {b.branch} | الحلاق: {b.barber}</p>
-                          {b.type === "حجز مسبق" ? (<p>الموعد: {b.date} — {b.time} (العربون: {b.deposit} جنيه)</p>) : (<p style={{ fontSize: 20, color: '#d35400' }}>رقم الدور: <b>{b.turnNumber}</b></p>)}
-                          <small className="muted">{b.status}</small>
-                        </div>
-                      ))
-                    )}
+                    {bookings.length === 0 ? (<div className="panel">لا توجد حجوزات حتى الآن.</div>) : (bookings.map(b => (<div className="panel" key={b.id} style={{ borderRight: b.type === 'دور الآن' ? '5px solid #e8bb76' : '5px solid #142238' }}><div className="row"><h3>{b.name} — {b.service}</h3><span className="gold" style={{ fontWeight: "bold" }}>{b.type}</span></div><p>الفرع: {b.branch} | الحلاق: {b.barber}</p>{b.type === "حجز مسبق" ? (<p>الموعد: {b.date} — {b.time} (العربون: {b.deposit} جنيه)</p>) : (<p style={{ fontSize: 20, color: '#d35400' }}>رقم الدور: <b>{b.turnNumber}</b></p>)}<small className="muted">{b.status}</small></div>)))}
                   </>
                 )}
 
@@ -236,9 +234,7 @@
                     <h2 className="section">تسلية (لعبة إكس أو) 🎮</h2>
                     <div className="panel" style={{ textAlign: "center" }}>
                       <h3>{winner ? `الفائز هو: ${winner}` : `دور اللاعب: ${isXNext ? 'X' : 'O'}`}</h3>
-                      <div className="game-board">
-                        {board.map((square, i) => (<button key={i} className="square" onClick={() => { if (winner || board[i]) return; const newBoard = [...board]; newBoard[i] = isXNext ? 'X' : 'O'; setBoard(newBoard); setIsXNext(!isXNext); }}>{square}</button>))}
-                      </div>
+                      <div className="game-board">{board.map((square, i) => (<button key={i} className="square" onClick={() => { if (winner || board[i]) return; const newBoard = [...board]; newBoard[i] = isXNext ? 'X' : 'O'; setBoard(newBoard); setIsXNext(!isXNext); }}>{square}</button>))}</div>
                       <button className="secondary" style={{ marginTop: 20 }} onClick={() => { setBoard(Array(9).fill(null)); setIsXNext(true); }}>إعادة اللعب</button>
                     </div>
                   </>
@@ -246,12 +242,40 @@
 
                 {page === "admin" && (
                   <>
-                    <h2 className="section">لوحة الإدارة</h2>
-                    <div className="grid">
-                      <div className="stat">إجمالي الحجوزات<strong>{bookings.length}</strong></div>
-                      <div className="stat">حجوزات مسبقة<strong>{bookings.filter(b => b.type === "حجز مسبق").length}</strong></div>
-                      <div className="stat">في الانتظار (أدوار)<strong>{bookings.filter(b => b.type === "دور الآن").length}</strong></div>
-                    </div>
+                    {!isAdminAuth ? (
+                      <div className="panel" style={{maxWidth: 400, margin: '50px auto', textAlign: 'center'}}>
+                        <h3>🔒 تسجيل دخول المالك</h3>
+                        <p className="muted">من فضلك أدخل كلمة المرور.</p>
+                        <form onSubmit={handleAdminLogin}>
+                          <input type="password" placeholder="أدخل الباسورد" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} required />
+                          <button className="primary" type="submit" style={{width: '100%'}}>دخول</button>
+                        </form>
+                      </div>
+                    ) : (
+                      <>
+                        <h2 className="section">لوحة الإدارة</h2>
+                        <button className="danger" style={{marginBottom: 20}} onClick={() => { setIsAdminAuth(false); setAdminPassword(""); }}>تسجيل خروج</button>
+                        
+                        <div className="grid">
+                          <div className="stat">إجمالي الدخل<strong>{totalIncome} ج.م</strong></div>
+                          <div className="stat">إجمالي المسحوبات<strong>{totalWithdrawn} ج.م</strong></div>
+                          <div className="stat" style={{background: '#e6f8ed', borderColor: '#17663a'}}>الصافي في الخزنة<strong style={{color: '#17663a'}}>{safeBalance} ج.م</strong></div>
+                        </div>
+
+                        <div className="panel" style={{marginTop: 20}}>
+                           <h3>تسجيل سحب نقدية من الخزنة</h3>
+                           <form onSubmit={handleWithdraw} style={{display: 'flex', gap: 10, alignItems: 'center'}}>
+                              <input type="number" placeholder="المبلغ المسحوب (ج.م)" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} required />
+                              <button className="primary" type="submit">تسجيل السحب</button>
+                           </form>
+                        </div>
+
+                        <h3 className="section">سجل المسحوبات</h3>
+                        {withdrawals.length === 0 ? <div className="panel">لا توجد مسحوبات.</div> : withdrawals.map(w => (
+                           <div className="panel" key={w.id} style={{ padding: 10, marginBottom: 5 }}>تم سحب <b>{w.amount}</b> جنيه.</div>
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
                 <footer>بودي © 2026 — نموذج أولي قابل للتجربة</footer>
@@ -262,15 +286,8 @@
 
         function calculateWinner(squares) {
           const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-          for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) { return squares[a]; }
-          }
+          for (let i = 0; i < lines.length; i++) { const [a, b, c] = lines[i]; if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) { return squares[a]; } }
           return null;
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+        const root = ReactDOM.createRoot(document.getElementById('root'
